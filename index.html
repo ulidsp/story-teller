@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Kanit', sans-serif; }
-        /* แต่ง Slider ให้ดูสวยงามขึ้นเล็กน้อย */
         input[type=range] { accent-color: #d97706; }
     </style>
 </head>
@@ -20,13 +19,24 @@
         </div>
 
         <div class="p-6 space-y-6">
-            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+            <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">🔑 Google AI Studio API Key</label>
-                <div class="flex gap-2">
-                    <input type="password" id="apiKey" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none transition" placeholder="ใส่ API Key ของคุณที่นี่...">
-                    <button onclick="saveApiKey()" class="bg-gray-800 text-white px-5 py-2 rounded-lg hover:bg-gray-700 transition font-medium">บันทึก</button>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="apiKey" class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none transition font-mono text-sm" placeholder="วาง API Key ของคุณที่นี่...">
+                    
+                    <div class="flex gap-2 justify-end">
+                        <button onclick="pasteApiKey()" class="bg-blue-100 text-blue-700 px-4 py-2.5 rounded-lg hover:bg-blue-200 transition font-medium text-sm flex items-center gap-1">
+                            📋 วาง
+                        </button>
+                        <button onclick="saveApiKey()" class="bg-gray-800 text-white px-5 py-2.5 rounded-lg hover:bg-gray-700 transition font-medium text-sm">
+                            บันทึก
+                        </button>
+                        <button onclick="clearApiKey()" class="bg-red-100 text-red-700 px-4 py-2.5 rounded-lg hover:bg-red-200 transition font-medium text-sm flex items-center gap-1">
+                            🗑️ ล้าง
+                        </button>
+                    </div>
                 </div>
-                <p id="keyStatus" class="text-xs text-green-600 mt-2 hidden font-medium">✅ บันทึก API Key ในระบบแล้ว</p>
+                <p id="keyStatus" class="text-xs mt-2 hidden font-medium transition-all"></p>
             </div>
 
             <div class="space-y-4">
@@ -82,7 +92,7 @@
         let nextAudioTime = 0;
         let isPlaying = false;
 
-        // โหลด API Key เมื่อเปิดเว็บ
+        // --- ระบบจัดการ API Key ---
         window.onload = () => {
             const savedKey = localStorage.getItem('gemini_api_key');
             if (savedKey) {
@@ -90,17 +100,40 @@
             }
         };
 
+        function showStatus(message, isSuccess = true) {
+            const status = document.getElementById('keyStatus');
+            status.innerText = message;
+            status.className = `text-xs mt-2 font-medium transition-all ${isSuccess ? 'text-green-600' : 'text-red-600'}`;
+            status.classList.remove('hidden');
+            setTimeout(() => status.classList.add('hidden'), 3000);
+        }
+
+        async function pasteApiKey() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('apiKey').value = text;
+            } catch (err) {
+                console.error('Failed to read clipboard: ', err);
+                alert('ไม่สามารถดึงข้อมูลจาก Clipboard ได้ กรุณากดอนุญาตให้เบราว์เซอร์เข้าถึง หรือใช้ปุ่มลัด Ctrl+V / Cmd+V ในช่องแทนครับ');
+            }
+        }
+
         function saveApiKey() {
             const key = document.getElementById('apiKey').value.trim();
             if (key) {
                 localStorage.setItem('gemini_api_key', key);
-                const status = document.getElementById('keyStatus');
-                status.classList.remove('hidden');
-                setTimeout(() => status.classList.add('hidden'), 3000);
+                showStatus('✅ บันทึก API Key ใน Local Storage แล้ว', true);
             } else {
-                alert('กรุณาใส่ API Key ก่อนครับ');
+                alert('กรุณาใส่ API Key ก่อนกดบันทึกครับ');
             }
         }
+
+        function clearApiKey() {
+            document.getElementById('apiKey').value = '';
+            localStorage.removeItem('gemini_api_key');
+            showStatus('🗑️ ลบ API Key ออกจากระบบแล้ว', false);
+        }
+        // ------------------------
 
         async function initAudio() {
             if (!audioContext) {
@@ -115,7 +148,6 @@
         function playPCM(base64Data) {
             if (!audioContext || !isPlaying) return;
             
-            // ถอดรหัส Base64 เป็น Binary
             const binaryString = window.atob(base64Data);
             const len = binaryString.length;
             const bytes = new Uint8Array(len);
@@ -123,14 +155,12 @@
                 bytes[i] = binaryString.charCodeAt(i);
             }
 
-            // แปลง 16-bit PCM เป็น Float32
             const int16Array = new Int16Array(bytes.buffer);
             const float32Array = new Float32Array(int16Array.length);
             for (let i = 0; i < int16Array.length; i++) {
                 float32Array[i] = int16Array[i] / 32768.0;
             }
 
-            // สร้าง Audio Buffer (Sample Rate 24kHz ของ Native Audio)
             const audioBuffer = audioContext.createBuffer(1, float32Array.length, 24000);
             audioBuffer.getChannelData(0).set(float32Array);
 
@@ -138,15 +168,12 @@
             source.buffer = audioBuffer;
             source.connect(audioContext.destination);
 
-            // ดึงค่าความเร็วจาก Slider
             const speed = parseFloat(document.getElementById('speedSlider').value);
             source.playbackRate.value = speed;
 
-            // คำนวณเวลาที่จะเล่นก้อนเสียงนี้ เพื่อให้เสียงต่อเนื่องกัน
             let playTime = Math.max(audioContext.currentTime, nextAudioTime);
             source.start(playTime);
             
-            // อัปเดตเวลาถัดไป (หารด้วย speed เพื่อชดเชยเวลาที่เสียงถูกเร่งหรือหน่วง)
             nextAudioTime = playTime + (audioBuffer.duration / speed);
             
             document.getElementById('audioStatus').innerHTML = '🔊 <b>กำลังเล่านิทาน...</b> (พิมพ์แทรกด้านล่างได้เลย)';
@@ -160,7 +187,6 @@
             if (!apiKey) return alert("กรุณาใส่และบันทึก API Key ก่อนครับ");
             if (!storyText) return alert("กรุณาใส่เนื้อหานิทานให้ผมหน่อยครับ");
 
-            // อัปเดต UI
             document.getElementById('startBtn').classList.add('hidden');
             document.getElementById('stopBtn').classList.remove('hidden');
             document.getElementById('interactionSection').classList.remove('hidden');
@@ -169,13 +195,11 @@
 
             await initAudio();
 
-            // เชื่อมต่อ WebSocket ไปยังโมเดล
             const wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=${apiKey}`;
             ws = new WebSocket(wsUrl);
 
             ws.onopen = () => {
                 isPlaying = true;
-                // ส่ง System Instruction ไปบอกหน้าที่
                 const setupMessage = {
                     setup: {
                         model: "models/gemini-2.5-flash-native-audio", 
@@ -192,12 +216,10 @@
             ws.onmessage = (event) => {
                 const response = JSON.parse(event.data);
                 
-                // เมื่อ Setup เสร็จ สั่งให้เริ่มเล่า
                 if (response.setupComplete) {
                     sendToGemini("สวัสดีครับ เริ่มเล่านิทานให้ฟังได้เลยครับ");
                 }
 
-                // รับข้อมูลเสียงกลับมาและเล่น
                 if (response.serverContent && response.serverContent.modelTurn) {
                     const parts = response.serverContent.modelTurn.parts;
                     for (const part of parts) {
@@ -237,7 +259,6 @@
             const input = document.getElementById('chatInput');
             const text = input.value.trim();
             if (text && isPlaying) {
-                // เมื่อพิมพ์ข้อความใหม่ ให้เคลียร์เสียงที่ค้างอยู่ในคิวออก เพื่อให้ตอบสนองทันที
                 nextAudioTime = audioContext.currentTime; 
                 sendToGemini(text);
                 input.value = '';
@@ -246,7 +267,6 @@
             }
         }
 
-        // กด Enter ในช่องแชทเพื่อส่งข้อความ
         document.getElementById('chatInput').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') sendChatMessage();
         });
@@ -258,7 +278,6 @@
                 ws = null;
             }
             
-            // คืนค่า UI
             document.getElementById('startBtn').classList.remove('hidden');
             document.getElementById('stopBtn').classList.add('hidden');
             document.getElementById('interactionSection').classList.add('hidden');
