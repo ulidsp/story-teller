@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Storyteller App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Kanit', sans-serif; }
+        /* แต่ง Slider ให้ดูสวยงามขึ้นเล็กน้อย */
+        input[type=range] { accent-color: #d97706; }
+    </style>
+</head>
+<body class="bg-amber-50 min-h-screen p-4 md:p-8">
+    <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-amber-100">
+        <div class="bg-gradient-to-r from-amber-500 to-amber-600 p-6 text-white text-center">
+            <h1 class="text-3xl font-bold text-white">📚 นักเล่านิทาน AI</h1>
+            <p class="mt-2 text-amber-100">ขับเคลื่อนด้วย Gemini 2.5 Flash Native Audio</p>
+        </div>
+
+        <div class="p-6 space-y-6">
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">🔑 Google AI Studio API Key</label>
+                <div class="flex gap-2">
+                    <input type="password" id="apiKey" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none transition" placeholder="ใส่ API Key ของคุณที่นี่...">
+                    <button onclick="saveApiKey()" class="bg-gray-800 text-white px-5 py-2 rounded-lg hover:bg-gray-700 transition font-medium">บันทึก</button>
+                </div>
+                <p id="keyStatus" class="text-xs text-green-600 mt-2 hidden font-medium">✅ บันทึก API Key ในระบบแล้ว</p>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">📝 เนื้อหานิทาน (หรือโครงเรื่อง)</label>
+                    <textarea id="storyContent" rows="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none resize-none transition" placeholder="กาลครั้งหนึ่งนานมาแล้ว...">กาลครั้งหนึ่งนานมาแล้ว ณ ดินแดนแสนสงบ มีสถานที่ลับแห่งหนึ่งชื่อว่า "อาศรมขนมเปี๊ยะ" ซ่อนตัวอยู่หลังหุบเขา ที่นี่ไม่ได้ทำขนมธรรมดาทั่วไป แต่คุณยายเจ้าของร้านได้คิดค้นสูตร "ขนมเปี๊ยะสีรุ้ง" สุดวิเศษขึ้นมา ว่ากันว่าใครก็ตามที่ได้ชิมขนมเปี๊ยะสีรุ้งนี้ จะมีความสุขและมีรอยยิ้มไปตลอดทั้งวัน วันหนึ่ง มีมังกรน้อยตัวหนึ่งหลงทางมา...</textarea>
+                </div>
+
+                <div class="bg-amber-50/50 p-4 rounded-xl border border-amber-100">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-sm font-semibold text-gray-700">⏱️ ความเร็วในการเล่า</label>
+                        <span class="text-sm font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded"><span id="speedVal">1.0</span>x</span>
+                    </div>
+                    <input type="range" id="speedSlider" min="0.5" max="2.0" step="0.1" value="1.0" class="w-full cursor-pointer" oninput="document.getElementById('speedVal').innerText = parseFloat(this.value).toFixed(1)">
+                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>ช้า (0.5x)</span>
+                        <span>ปกติ (1.0x)</span>
+                        <span>เร็ว (2.0x)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center pt-2">
+                <button id="startBtn" onclick="startStory()" class="bg-amber-500 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-amber-600 transition shadow-lg hover:shadow-xl flex items-center gap-2 transform hover:-translate-y-0.5">
+                    ▶️ เริ่มฟังนิทาน
+                </button>
+                <button id="stopBtn" onclick="stopStory()" class="bg-red-500 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-red-600 transition shadow-lg hidden flex items-center gap-2">
+                    ⏹️ หยุดเล่า
+                </button>
+            </div>
+
+            <div id="interactionSection" class="hidden border-t border-gray-100 pt-6 mt-6">
+                <div class="flex justify-center mb-6">
+                    <div id="audioStatus" class="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-700 rounded-full text-sm font-medium animate-pulse">
+                        ⏳ กำลังเตรียมเสียงนักเล่านิทาน...
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50/50 p-5 rounded-xl border border-blue-100">
+                    <label class="block text-sm font-semibold text-blue-800 mb-3">💬 พูดคุยโต้ตอบ หรือขอให้เปลี่ยนเนื้อเรื่อง</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="chatInput" class="flex-1 px-4 py-2.5 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="เช่น 'มังกรน้อยชื่ออะไร?' หรือ 'ขอให้ตื่นเต้นกว่านี้หน่อย!'">
+                        <button onclick="sendChatMessage()" class="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition font-medium shadow-sm">ส่งข้อความ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let audioContext = null;
+        let nextAudioTime = 0;
+        let isPlaying = false;
+
+        // โหลด API Key เมื่อเปิดเว็บ
+        window.onload = () => {
+            const savedKey = localStorage.getItem('gemini_api_key');
+            if (savedKey) {
+                document.getElementById('apiKey').value = savedKey;
+            }
+        };
+
+        function saveApiKey() {
+            const key = document.getElementById('apiKey').value.trim();
+            if (key) {
+                localStorage.setItem('gemini_api_key', key);
+                const status = document.getElementById('keyStatus');
+                status.classList.remove('hidden');
+                setTimeout(() => status.classList.add('hidden'), 3000);
+            } else {
+                alert('กรุณาใส่ API Key ก่อนครับ');
+            }
+        }
+
+        async function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContext.state === 'suspended') {
+                await audioContext.resume();
+            }
+            nextAudioTime = audioContext.currentTime;
+        }
+
+        function playPCM(base64Data) {
+            if (!audioContext || !isPlaying) return;
+            
+            // ถอดรหัส Base64 เป็น Binary
+            const binaryString = window.atob(base64Data);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+
+            // แปลง 16-bit PCM เป็น Float32
+            const int16Array = new Int16Array(bytes.buffer);
+            const float32Array = new Float32Array(int16Array.length);
+            for (let i = 0; i < int16Array.length; i++) {
+                float32Array[i] = int16Array[i] / 32768.0;
+            }
+
+            // สร้าง Audio Buffer (Sample Rate 24kHz ของ Native Audio)
+            const audioBuffer = audioContext.createBuffer(1, float32Array.length, 24000);
+            audioBuffer.getChannelData(0).set(float32Array);
+
+            const source = audioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            source.connect(audioContext.destination);
+
+            // ดึงค่าความเร็วจาก Slider
+            const speed = parseFloat(document.getElementById('speedSlider').value);
+            source.playbackRate.value = speed;
+
+            // คำนวณเวลาที่จะเล่นก้อนเสียงนี้ เพื่อให้เสียงต่อเนื่องกัน
+            let playTime = Math.max(audioContext.currentTime, nextAudioTime);
+            source.start(playTime);
+            
+            // อัปเดตเวลาถัดไป (หารด้วย speed เพื่อชดเชยเวลาที่เสียงถูกเร่งหรือหน่วง)
+            nextAudioTime = playTime + (audioBuffer.duration / speed);
+            
+            document.getElementById('audioStatus').innerHTML = '🔊 <b>กำลังเล่านิทาน...</b> (พิมพ์แทรกด้านล่างได้เลย)';
+            document.getElementById('audioStatus').className = "inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium";
+        }
+
+        async function startStory() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const storyText = document.getElementById('storyContent').value.trim();
+
+            if (!apiKey) return alert("กรุณาใส่และบันทึก API Key ก่อนครับ");
+            if (!storyText) return alert("กรุณาใส่เนื้อหานิทานให้ผมหน่อยครับ");
+
+            // อัปเดต UI
+            document.getElementById('startBtn').classList.add('hidden');
+            document.getElementById('stopBtn').classList.remove('hidden');
+            document.getElementById('interactionSection').classList.remove('hidden');
+            document.getElementById('audioStatus').innerHTML = '⏳ กำลังเชื่อมต่อ Live API...';
+            document.getElementById('audioStatus').className = "inline-flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-700 rounded-full text-sm font-medium animate-pulse";
+
+            await initAudio();
+
+            // เชื่อมต่อ WebSocket ไปยังโมเดล
+            const wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=${apiKey}`;
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                isPlaying = true;
+                // ส่ง System Instruction ไปบอกหน้าที่
+                const setupMessage = {
+                    setup: {
+                        model: "models/gemini-2.5-flash-native-audio", 
+                        systemInstruction: {
+                            parts: [{ 
+                                text: `คุณคือนักเล่านิทานที่เก่งกาจ อบอุ่น และมีอารมณ์ร่วมสูงมาก กรุณาเล่านิทานจากเนื้อหาต่อไปนี้ให้สนุกสนาน ใส่อารมณ์ ทำเสียงสูงต่ำตามบริบท และพร้อมตอบคำถามหรือเปลี่ยนเนื้อเรื่องตามที่ผู้ฟังขอเสมอ\n\nเนื้อหานิทาน:\n${storyText}` 
+                            }]
+                        }
+                    }
+                };
+                ws.send(JSON.stringify(setupMessage));
+            };
+
+            ws.onmessage = (event) => {
+                const response = JSON.parse(event.data);
+                
+                // เมื่อ Setup เสร็จ สั่งให้เริ่มเล่า
+                if (response.setupComplete) {
+                    sendToGemini("สวัสดีครับ เริ่มเล่านิทานให้ฟังได้เลยครับ");
+                }
+
+                // รับข้อมูลเสียงกลับมาและเล่น
+                if (response.serverContent && response.serverContent.modelTurn) {
+                    const parts = response.serverContent.modelTurn.parts;
+                    for (const part of parts) {
+                        if (part.inlineData && part.inlineData.mimeType.startsWith("audio/pcm")) {
+                            playPCM(part.inlineData.data);
+                        }
+                    }
+                }
+            };
+
+            ws.onerror = (error) => {
+                console.error("WebSocket Error: ", error);
+                alert("เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาตรวจสอบ API Key ครับ");
+                stopStory();
+            };
+
+            ws.onclose = () => {
+                if (isPlaying) stopStory();
+            };
+        }
+
+        function sendToGemini(text) {
+            if (!ws || ws.readyState !== WebSocket.OPEN) return;
+            const message = {
+                clientContent: {
+                    turns: [{
+                        role: "user",
+                        parts: [{ text: text }]
+                    }],
+                    turnComplete: true
+                }
+            };
+            ws.send(JSON.stringify(message));
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (text && isPlaying) {
+                // เมื่อพิมพ์ข้อความใหม่ ให้เคลียร์เสียงที่ค้างอยู่ในคิวออก เพื่อให้ตอบสนองทันที
+                nextAudioTime = audioContext.currentTime; 
+                sendToGemini(text);
+                input.value = '';
+                document.getElementById('audioStatus').innerHTML = '⏳ กำลังคิดคำตอบ...';
+                document.getElementById('audioStatus').className = "inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium animate-pulse";
+            }
+        }
+
+        // กด Enter ในช่องแชทเพื่อส่งข้อความ
+        document.getElementById('chatInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') sendChatMessage();
+        });
+
+        function stopStory() {
+            isPlaying = false;
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+            
+            // คืนค่า UI
+            document.getElementById('startBtn').classList.remove('hidden');
+            document.getElementById('stopBtn').classList.add('hidden');
+            document.getElementById('interactionSection').classList.add('hidden');
+            
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+        }
+    </script>
+</body>
+</html>
