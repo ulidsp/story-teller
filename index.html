@@ -15,7 +15,7 @@
     <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-amber-100">
         <div class="bg-gradient-to-r from-amber-500 to-amber-600 p-6 text-white text-center">
             <h1 class="text-3xl font-bold text-white">📚 นักเล่านิทาน AI</h1>
-            <p class="mt-2 text-amber-100">ขับเคลื่อนด้วย Gemini 2.5 Flash (Live API v1beta)</p>
+            <p class="mt-2 text-amber-100">Gemini 2.5 Flash Native Audio (v1beta)</p>
         </div>
 
         <div class="p-6 space-y-6">
@@ -27,7 +27,6 @@
                     <div class="flex gap-2 justify-end">
                         <button onclick="pasteApiKey()" class="bg-blue-100 text-blue-700 px-4 py-2.5 rounded-lg hover:bg-blue-200 transition font-medium text-sm flex items-center gap-1">📋 วาง</button>
                         <button onclick="saveApiKey()" class="bg-gray-800 text-white px-5 py-2.5 rounded-lg hover:bg-gray-700 transition font-medium text-sm">บันทึก</button>
-                        <button onclick="clearApiKey()" class="bg-red-100 text-red-700 px-4 py-2.5 rounded-lg hover:bg-red-200 transition font-medium text-sm flex items-center gap-1">🗑️ ล้าง</button>
                     </div>
                 </div>
                 <p id="keyStatus" class="text-xs mt-2 hidden font-medium transition-all"></p>
@@ -35,13 +34,14 @@
 
             <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
                 <label class="block text-sm font-semibold text-indigo-800 mb-2">⚙️ ตั้งค่า Model ID</label>
-                <input type="text" id="modelIdInput" class="w-full px-4 py-2 border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-mono bg-white" value="models/gemini-2.5-flash">
+                <input type="text" id="modelIdInput" class="w-full px-4 py-2 border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-mono bg-white text-gray-600" value="models/gemini-2.5-flash-native-audio-preview-12-2025">
+                <p class="text-xs text-indigo-600 mt-1">* นี่คือชื่อเฉพาะสำหรับเชื่อมต่อ WebSocket (Live API) เท่านั้น ห้ามเปลี่ยนเป็นชื่อสั้นนะครับ</p>
             </div>
 
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">📝 เนื้อหานิทาน (หรือโครงเรื่อง)</label>
-                    <textarea id="storyContent" rows="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none resize-none transition">กาลครั้งหนึ่งนานมาแล้ว ณ ดินแดนแสนสงบ มีสถานที่ลับแห่งหนึ่งชื่อว่า "อาศรมขนมเปี๊ยะ" ซ่อนตัวอยู่หลังหุบเขา ที่นี่ไม่ได้ทำขนมธรรมดาทั่วไป แต่คุณยายเจ้าของร้านได้คิดค้นสูตร "ขนมเปี๊ยะสีรุ้ง" สุดวิเศษขึ้นมา ว่ากันว่าใครก็ตามที่ได้ชิมขนมเปี๊ยะสีรุ้งนี้ จะมีความสุขและมีรอยยิ้มไปตลอดทั้งวัน วันหนึ่ง มีมังกรน้อยตัวหนึ่งหลงทางมา...</textarea>
+                    <textarea id="storyContent" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none resize-none transition">กาลครั้งหนึ่งนานมาแล้ว ณ ดินแดนแสนสงบ มีสถานที่ลับแห่งหนึ่งชื่อว่า "อาศรมขนมเปี๊ยะ" ซ่อนตัวอยู่หลังหุบเขา ที่นี่ไม่ได้ทำขนมธรรมดาทั่วไป แต่คุณยายเจ้าของร้านได้คิดค้นสูตร "ขนมเปี๊ยะสีรุ้ง" สุดวิเศษขึ้นมา ว่ากันว่าใครก็ตามที่ได้ชิมขนมเปี๊ยะสีรุ้งนี้ จะมีความสุขและมีรอยยิ้มไปตลอดทั้งวัน...</textarea>
                 </div>
 
                 <div class="bg-amber-50/50 p-4 rounded-xl border border-amber-100">
@@ -61,7 +61,7 @@
             <div id="interactionSection" class="hidden border-t border-gray-100 pt-6 mt-6">
                 <div class="flex justify-center mb-6">
                     <div id="audioStatus" class="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-700 rounded-full text-sm font-medium animate-pulse">
-                        ⏳ กำลังเชื่อมต่อและเตรียมเสียง...
+                        ⏳ กำลังเชื่อมต่อระบบเสียงของ Google...
                     </div>
                 </div>
                 
@@ -112,12 +112,6 @@
             } else {
                 alert('กรุณาใส่ API Key ครับ');
             }
-        }
-
-        function clearApiKey() {
-            document.getElementById('apiKey').value = '';
-            localStorage.removeItem('gemini_api_key');
-            showStatus('🗑️ ลบ API Key แล้ว', false);
         }
 
         async function initAudio() {
@@ -175,13 +169,12 @@
 
             await initAudio();
 
-            // 🟢 แก้ไขตรงนี้: เปลี่ยนจาก v1alpha เป็น v1beta
             const wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${apiKey}`;
             ws = new WebSocket(wsUrl);
 
             ws.onopen = () => {
                 isPlaying = true;
-                // 🟢 โครงสร้าง Setup สำหรับ v1beta
+                // โครงสร้าง Setup แบบมินิมอลที่สุด ตามสเปกของ API เพื่อป้องกัน Error 1008
                 const setupMessage = {
                     setup: {
                         model: modelId,
@@ -190,14 +183,14 @@
                             speechConfig: {
                                 voiceConfig: {
                                     prebuiltVoiceConfig: {
-                                        voiceName: "Kore" // เสียงมาตรฐานที่ฟังดูเป็นธรรมชาติ
+                                        voiceName: "Kore"
                                     }
                                 }
                             }
                         },
                         systemInstruction: {
                             parts: [{ 
-                                text: `คุณคือนักเล่านิทานที่เก่งกาจ อบอุ่น และมีอารมณ์ร่วมสูงมาก กรุณาเล่านิทานจากเนื้อหาต่อไปนี้ให้สนุกสนาน ใส่อารมณ์ ทำเสียงสูงต่ำตามบริบท และพร้อมตอบคำถามหรือเปลี่ยนเนื้อเรื่องตามที่ผู้ฟังขอเสมอ พูดภาษาไทยให้ชัดเจน\n\nเนื้อหานิทาน:\n${storyText}` 
+                                text: `คุณคือนักเล่านิทานที่เก่งกาจ เล่านิทานต่อไปนี้ให้สนุกสนาน ทำเสียงสูงต่ำตามบริบท และพูดภาษาไทยให้ชัดเจน\nเนื้อหานิทาน:\n${storyText}` 
                             }]
                         }
                     }
@@ -210,7 +203,7 @@
                 
                 if (response.setupComplete) {
                     document.getElementById('audioStatus').innerHTML = '✅ เชื่อมต่อสำเร็จ กำลังเริ่มเล่า...';
-                    sendToGemini("สวัสดีครับ เริ่มเล่านิทานให้ฟังได้เลยครับ");
+                    sendToGemini("เริ่มเล่านิทานเลยครับ");
                 }
 
                 if (response.serverContent && response.serverContent.modelTurn) {
@@ -223,13 +216,9 @@
                 }
             };
 
-            ws.onerror = (error) => {
-                console.error("WebSocket Error: ", error);
-            };
-
             ws.onclose = (event) => {
                 if (event.code !== 1000 && isPlaying) {
-                    alert(`⚠️ ถูกตัดการเชื่อมต่อ (Code: ${event.code}) - ${event.reason || 'กรุณาตรวจสอบ Model ID'}`);
+                    alert(`⚠️ ถูกตัดการเชื่อมต่อ (Code: ${event.code}) \nระบบแจ้งว่า: ${event.reason || 'Model ไม่รองรับ Live API'}`);
                     document.getElementById('audioStatus').innerHTML = `❌ Error ${event.code}`;
                     document.getElementById('audioStatus').className = "inline-flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-full text-sm font-medium";
                 }
