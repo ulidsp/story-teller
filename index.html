@@ -25,24 +25,24 @@
                     <input type="text" id="apiKey" class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none transition font-mono text-sm" placeholder="วาง API Key ของคุณที่นี่...">
                     
                     <div class="flex gap-2 justify-end">
-                        <button onclick="pasteApiKey()" class="bg-blue-100 text-blue-700 px-4 py-2.5 rounded-lg hover:bg-blue-200 transition font-medium text-sm flex items-center gap-1">
-                            📋 วาง
-                        </button>
-                        <button onclick="saveApiKey()" class="bg-gray-800 text-white px-5 py-2.5 rounded-lg hover:bg-gray-700 transition font-medium text-sm">
-                            บันทึก
-                        </button>
-                        <button onclick="clearApiKey()" class="bg-red-100 text-red-700 px-4 py-2.5 rounded-lg hover:bg-red-200 transition font-medium text-sm flex items-center gap-1">
-                            🗑️ ล้าง
-                        </button>
+                        <button onclick="pasteApiKey()" class="bg-blue-100 text-blue-700 px-4 py-2.5 rounded-lg hover:bg-blue-200 transition font-medium text-sm flex items-center gap-1">📋 วาง</button>
+                        <button onclick="saveApiKey()" class="bg-gray-800 text-white px-5 py-2.5 rounded-lg hover:bg-gray-700 transition font-medium text-sm">บันทึก</button>
+                        <button onclick="clearApiKey()" class="bg-red-100 text-red-700 px-4 py-2.5 rounded-lg hover:bg-red-200 transition font-medium text-sm flex items-center gap-1">🗑️ ล้าง</button>
                     </div>
                 </div>
                 <p id="keyStatus" class="text-xs mt-2 hidden font-medium transition-all"></p>
             </div>
 
+            <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                <label class="block text-sm font-semibold text-indigo-800 mb-2">⚙️ ตั้งค่า Model ID (ใช้สำหรับแก้ปัญหา)</label>
+                <input type="text" id="modelIdInput" class="w-full px-4 py-2 border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-mono" value="models/gemini-2.5-flash-native-audio">
+                <p class="text-xs text-indigo-600 mt-1">* หาก error ว่าหาโมเดลไม่เจอ ลองเปลี่ยนเป็น <b>models/gemini-2.5-flash</b> ดูครับ</p>
+            </div>
+
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">📝 เนื้อหานิทาน (หรือโครงเรื่อง)</label>
-                    <textarea id="storyContent" rows="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none resize-none transition" placeholder="กาลครั้งหนึ่งนานมาแล้ว...">กาลครั้งหนึ่งนานมาแล้ว ณ ดินแดนแสนสงบ มีสถานที่ลับแห่งหนึ่งชื่อว่า "อาศรมขนมเปี๊ยะ" ซ่อนตัวอยู่หลังหุบเขา ที่นี่ไม่ได้ทำขนมธรรมดาทั่วไป แต่คุณยายเจ้าของร้านได้คิดค้นสูตร "ขนมเปี๊ยะสีรุ้ง" สุดวิเศษขึ้นมา ว่ากันว่าใครก็ตามที่ได้ชิมขนมเปี๊ยะสีรุ้งนี้ จะมีความสุขและมีรอยยิ้มไปตลอดทั้งวัน วันหนึ่ง มีมังกรน้อยตัวหนึ่งหลงทางมา...</textarea>
+                    <textarea id="storyContent" rows="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none resize-none transition">กาลครั้งหนึ่งนานมาแล้ว ณ ดินแดนแสนสงบ มีสถานที่ลับแห่งหนึ่งชื่อว่า "อาศรมขนมเปี๊ยะ" ซ่อนตัวอยู่หลังหุบเขา ที่นี่ไม่ได้ทำขนมธรรมดาทั่วไป แต่คุณยายเจ้าของร้านได้คิดค้นสูตร "ขนมเปี๊ยะสีรุ้ง" สุดวิเศษขึ้นมา ว่ากันว่าใครก็ตามที่ได้ชิมขนมเปี๊ยะสีรุ้งนี้ จะมีความสุขและมีรอยยิ้มไปตลอดทั้งวัน วันหนึ่ง มีมังกรน้อยตัวหนึ่งหลงทางมา...</textarea>
                 </div>
 
                 <div class="bg-amber-50/50 p-4 rounded-xl border border-amber-100">
@@ -51,21 +51,12 @@
                         <span class="text-sm font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded"><span id="speedVal">1.0</span>x</span>
                     </div>
                     <input type="range" id="speedSlider" min="0.5" max="2.0" step="0.1" value="1.0" class="w-full cursor-pointer" oninput="document.getElementById('speedVal').innerText = parseFloat(this.value).toFixed(1)">
-                    <div class="flex justify-between text-xs text-gray-500 mt-1">
-                        <span>ช้า (0.5x)</span>
-                        <span>ปกติ (1.0x)</span>
-                        <span>เร็ว (2.0x)</span>
-                    </div>
                 </div>
             </div>
 
             <div class="flex justify-center pt-2">
-                <button id="startBtn" onclick="startStory()" class="bg-amber-500 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-amber-600 transition shadow-lg hover:shadow-xl flex items-center gap-2 transform hover:-translate-y-0.5">
-                    ▶️ เริ่มฟังนิทาน
-                </button>
-                <button id="stopBtn" onclick="stopStory()" class="bg-red-500 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-red-600 transition shadow-lg hidden flex items-center gap-2">
-                    ⏹️ หยุดเล่า
-                </button>
+                <button id="startBtn" onclick="startStory()" class="bg-amber-500 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-amber-600 transition shadow-lg hover:shadow-xl flex items-center gap-2">▶️ เริ่มฟังนิทาน</button>
+                <button id="stopBtn" onclick="stopStory()" class="bg-red-500 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-red-600 transition shadow-lg hidden flex items-center gap-2">⏹️ หยุดเล่า</button>
             </div>
 
             <div id="interactionSection" class="hidden border-t border-gray-100 pt-6 mt-6">
@@ -78,7 +69,7 @@
                 <div class="bg-blue-50/50 p-5 rounded-xl border border-blue-100">
                     <label class="block text-sm font-semibold text-blue-800 mb-3">💬 พูดคุยโต้ตอบ หรือขอให้เปลี่ยนเนื้อเรื่อง</label>
                     <div class="flex gap-2">
-                        <input type="text" id="chatInput" class="flex-1 px-4 py-2.5 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="เช่น 'มังกรน้อยชื่ออะไร?' หรือ 'ขอให้ตื่นเต้นกว่านี้หน่อย!'">
+                        <input type="text" id="chatInput" class="flex-1 px-4 py-2.5 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="เช่น 'มังกรน้อยชื่ออะไร?'">
                         <button onclick="sendChatMessage()" class="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition font-medium shadow-sm">ส่งข้อความ</button>
                     </div>
                 </div>
@@ -92,12 +83,9 @@
         let nextAudioTime = 0;
         let isPlaying = false;
 
-        // --- ระบบจัดการ API Key ---
         window.onload = () => {
             const savedKey = localStorage.getItem('gemini_api_key');
-            if (savedKey) {
-                document.getElementById('apiKey').value = savedKey;
-            }
+            if (savedKey) document.getElementById('apiKey').value = savedKey;
         };
 
         function showStatus(message, isSuccess = true) {
@@ -113,8 +101,7 @@
                 const text = await navigator.clipboard.readText();
                 document.getElementById('apiKey').value = text;
             } catch (err) {
-                console.error('Failed to read clipboard: ', err);
-                alert('ไม่สามารถดึงข้อมูลจาก Clipboard ได้ กรุณากดอนุญาตให้เบราว์เซอร์เข้าถึง หรือใช้ปุ่มลัด Ctrl+V / Cmd+V ในช่องแทนครับ');
+                alert('ไม่สามารถดึงข้อมูลจาก Clipboard ได้ครับ');
             }
         }
 
@@ -133,7 +120,6 @@
             localStorage.removeItem('gemini_api_key');
             showStatus('🗑️ ลบ API Key ออกจากระบบแล้ว', false);
         }
-        // ------------------------
 
         async function initAudio() {
             if (!audioContext) {
@@ -151,15 +137,11 @@
             const binaryString = window.atob(base64Data);
             const len = binaryString.length;
             const bytes = new Uint8Array(len);
-            for (let i = 0; i < len; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
+            for (let i = 0; i < len; i++) bytes[i] = binaryString.charCodeAt(i);
 
             const int16Array = new Int16Array(bytes.buffer);
             const float32Array = new Float32Array(int16Array.length);
-            for (let i = 0; i < int16Array.length; i++) {
-                float32Array[i] = int16Array[i] / 32768.0;
-            }
+            for (let i = 0; i < int16Array.length; i++) float32Array[i] = int16Array[i] / 32768.0;
 
             const audioBuffer = audioContext.createBuffer(1, float32Array.length, 24000);
             audioBuffer.getChannelData(0).set(float32Array);
@@ -173,24 +155,23 @@
 
             let playTime = Math.max(audioContext.currentTime, nextAudioTime);
             source.start(playTime);
-            
             nextAudioTime = playTime + (audioBuffer.duration / speed);
             
-            document.getElementById('audioStatus').innerHTML = '🔊 <b>กำลังเล่านิทาน...</b> (พิมพ์แทรกด้านล่างได้เลย)';
+            document.getElementById('audioStatus').innerHTML = '🔊 <b>กำลังเล่านิทาน...</b>';
             document.getElementById('audioStatus').className = "inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium";
         }
 
         async function startStory() {
             const apiKey = document.getElementById('apiKey').value.trim();
             const storyText = document.getElementById('storyContent').value.trim();
+            const modelId = document.getElementById('modelIdInput').value.trim();
 
-            if (!apiKey) return alert("กรุณาใส่และบันทึก API Key ก่อนครับ");
-            if (!storyText) return alert("กรุณาใส่เนื้อหานิทานให้ผมหน่อยครับ");
+            if (!apiKey) return alert("กรุณาใส่ API Key ก่อนครับ");
 
             document.getElementById('startBtn').classList.add('hidden');
             document.getElementById('stopBtn').classList.remove('hidden');
             document.getElementById('interactionSection').classList.remove('hidden');
-            document.getElementById('audioStatus').innerHTML = '⏳ กำลังเชื่อมต่อ Live API...';
+            document.getElementById('audioStatus').innerHTML = '⏳ กำลังส่งคำขอไปที่ Google...';
             document.getElementById('audioStatus').className = "inline-flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-700 rounded-full text-sm font-medium animate-pulse";
 
             await initAudio();
@@ -202,21 +183,27 @@
                 isPlaying = true;
                 const setupMessage = {
                     setup: {
-                        model: "models/gemini-2.5-flash-native-audio", 
+                        model: modelId,
+                        // เพิ่มส่วนนี้เพื่อบอก API ว่าให้ส่งข้อมูลกลับมาเป็นเสียง (สำคัญมาก)
+                        generationConfig: {
+                            responseModalities: ["AUDIO"]
+                        },
                         systemInstruction: {
                             parts: [{ 
-                                text: `คุณคือนักเล่านิทานที่เก่งกาจ อบอุ่น และมีอารมณ์ร่วมสูงมาก กรุณาเล่านิทานจากเนื้อหาต่อไปนี้ให้สนุกสนาน ใส่อารมณ์ ทำเสียงสูงต่ำตามบริบท และพร้อมตอบคำถามหรือเปลี่ยนเนื้อเรื่องตามที่ผู้ฟังขอเสมอ\n\nเนื้อหานิทาน:\n${storyText}` 
+                                text: `คุณคือนักเล่านิทานที่เก่งกาจ อบอุ่น กรุณาเล่านิทานจากเนื้อหาต่อไปนี้ให้สนุกสนาน ใส่อารมณ์:\n\n${storyText}` 
                             }]
                         }
                     }
                 };
                 ws.send(JSON.stringify(setupMessage));
+                console.log("ส่ง Setup ไปแล้ว:", setupMessage);
             };
 
             ws.onmessage = (event) => {
                 const response = JSON.parse(event.data);
                 
                 if (response.setupComplete) {
+                    document.getElementById('audioStatus').innerHTML = '✅ เชื่อมต่อสำเร็จ กำลังเริ่มเล่า...';
                     sendToGemini("สวัสดีครับ เริ่มเล่านิทานให้ฟังได้เลยครับ");
                 }
 
@@ -232,12 +219,21 @@
 
             ws.onerror = (error) => {
                 console.error("WebSocket Error: ", error);
-                alert("เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาตรวจสอบ API Key ครับ");
-                stopStory();
             };
 
-            ws.onclose = () => {
-                if (isPlaying) stopStory();
+            // ดักจับ Error ตรงนี้ครับ!
+            ws.onclose = (event) => {
+                console.log("WebSocket Closed: ", event.code, event.reason);
+                
+                // ถ้ารหัสไม่ใช่ 1000 แปลว่าปิดแบบผิดปกติ
+                if (event.code !== 1000 && isPlaying) {
+                    alert(`⚠️ Google API ตัดการเชื่อมต่อ!\nCode: ${event.code}\nReason: ${event.reason || 'กรุณากด F12 ดู Console'}\n\n*วิธีแก้เบื้องต้น: ลองเปลี่ยน Model ID ในช่องด้านบนเป็น models/gemini-2.5-flash ดูครับ`);
+                    
+                    document.getElementById('audioStatus').innerHTML = `❌ ถูกตัดการเชื่อมต่อ (Code: ${event.code})`;
+                    document.getElementById('audioStatus').className = "inline-flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-full text-sm font-medium";
+                }
+                
+                stopStory(false); // false = ไม่ต้อง reset UI ทั้งหมด เพื่อให้เห็น error
             };
         }
 
@@ -245,10 +241,7 @@
             if (!ws || ws.readyState !== WebSocket.OPEN) return;
             const message = {
                 clientContent: {
-                    turns: [{
-                        role: "user",
-                        parts: [{ text: text }]
-                    }],
+                    turns: [{ role: "user", parts: [{ text: text }] }],
                     turnComplete: true
                 }
             };
@@ -263,7 +256,6 @@
                 sendToGemini(text);
                 input.value = '';
                 document.getElementById('audioStatus').innerHTML = '⏳ กำลังคิดคำตอบ...';
-                document.getElementById('audioStatus').className = "inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium animate-pulse";
             }
         }
 
@@ -271,16 +263,22 @@
             if (e.key === 'Enter') sendChatMessage();
         });
 
-        function stopStory() {
+        function stopStory(resetUI = true) {
             isPlaying = false;
             if (ws) {
                 ws.close();
                 ws = null;
             }
             
-            document.getElementById('startBtn').classList.remove('hidden');
-            document.getElementById('stopBtn').classList.add('hidden');
-            document.getElementById('interactionSection').classList.add('hidden');
+            if (resetUI) {
+                document.getElementById('startBtn').classList.remove('hidden');
+                document.getElementById('stopBtn').classList.add('hidden');
+                document.getElementById('interactionSection').classList.add('hidden');
+            } else {
+                // ถ้ามี error แค่เปลี่ยนปุ่ม
+                document.getElementById('startBtn').classList.remove('hidden');
+                document.getElementById('stopBtn').classList.add('hidden');
+            }
             
             if (audioContext) {
                 audioContext.close();
